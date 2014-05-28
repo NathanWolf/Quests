@@ -1127,8 +1127,7 @@ public class QuestFactory implements ConversationAbandonedListener, ColorUtil {
         LinkedList<Integer> mcMMOAmountReqs = null;
         String heroesPrimaryReq = null;
         String heroesSecondaryReq = null;
-        LinkedList<String> customReqs = null;
-        LinkedList<Map<String, Object>> customReqsData = null;
+        Map<String, Map<String, Object>> customReqs = null;
         String failMessage = null;
 
         Integer moneyRew = null;
@@ -1144,8 +1143,7 @@ public class QuestFactory implements ConversationAbandonedListener, ColorUtil {
         LinkedList<String> heroesClassRews = null;
         LinkedList<Double> heroesExpRews = null;
         LinkedList<String> phatLootRews = null;
-        LinkedList<String> customRews = null;
-        LinkedList<Map<String, Object>> customRewsData = null;
+        Map<String, Map<String, Object>> customRews = null;
 
         if (cc.getSessionData(CK.Q_REDO_DELAY) != null) {
             redo = (Long) cc.getSessionData(CK.Q_REDO_DELAY);
@@ -1198,8 +1196,20 @@ public class QuestFactory implements ConversationAbandonedListener, ColorUtil {
         }
 
         if (cc.getSessionData(CK.REQ_CUSTOM) != null) {
-            customReqs = (LinkedList<String>) cc.getSessionData(CK.REQ_CUSTOM);
-            customReqsData = (LinkedList<Map<String, Object>>) cc.getSessionData(CK.REQ_CUSTOM_DATA);
+            Object reqs = cc.getSessionData(CK.REQ_CUSTOM);
+            if (reqs instanceof List) {
+                customReqs = new HashMap<String, Map<String, Object>>();
+                LinkedList<Map<String, Object>> customReqsData = (LinkedList<Map<String, Object>>) cc.getSessionData(CK.REQ_CUSTOM_DATA);
+                List<String> reqList = (List<String>)reqs;
+                for (int i = 0; i < reqList.size(); i++){
+                    Map<String, Object> customReq = new HashMap<String, Object>();
+                    customReq.put("name", reqList.get(i));
+                    customReq.put("data", customReqsData.get(i));
+                    customReqs.put("req" + (i + 1), customReq);
+                }
+            } else if (reqs instanceof Map) {
+                customReqs = (Map<String, Map<String, Object>>) reqs;
+            }
         }
 
         if (cc.getSessionData(CK.Q_FAIL_MESSAGE) != null) {
@@ -1260,8 +1270,20 @@ public class QuestFactory implements ConversationAbandonedListener, ColorUtil {
         }
 
         if (cc.getSessionData(CK.REW_CUSTOM) != null) {
-            customRews = (LinkedList<String>) cc.getSessionData(CK.REW_CUSTOM);
-            customRewsData = (LinkedList<Map<String, Object>>) cc.getSessionData(CK.REW_CUSTOM_DATA);
+            Object rews = cc.getSessionData(CK.REW_CUSTOM);
+            if (rews instanceof LinkedList) {
+                customRews = new HashMap<String, Map<String, Object>>();
+                LinkedList<Map<String, Object>> customRewsData = (LinkedList<Map<String, Object>>) cc.getSessionData(CK.REW_CUSTOM_DATA);
+                List<String> rewList = (List<String>)rews;
+                for (int i = 0; i < rewList.size(); i++){
+                    Map<String, Object> customRew = new HashMap<String, Object>();
+                    customRew.put("name", rewList.get(i));
+                    customRew.put("data", customRewsData.get(i));
+                    customRews.put("rew" + (i + 1), customRew);
+                }
+            } else if (rews instanceof Map) {
+                customRews = (Map<String, Map<String, Object>>) rews;
+            }
         }
 
         cs.set("name", name);
@@ -1299,10 +1321,12 @@ public class QuestFactory implements ConversationAbandonedListener, ColorUtil {
             reqs.set("heroes-secondary-class", heroesSecondaryReq);
             if (customReqs != null) {
                 ConfigurationSection customReqsSec = reqs.createSection("custom-requirements");
-                for (int i = 0; i < customReqs.size(); i++) {
-                    ConfigurationSection customReqSec = customReqsSec.createSection("req" + (i + 1));
-                    customReqSec.set("name", customReqs.get(i));
-                    customReqSec.set("data", customReqsData.get(i));
+
+                for (Entry<String, Map<String, Object>> entry : customReqs.entrySet()) {
+                    ConfigurationSection customReqSec = customReqsSec.createSection(entry.getKey());
+                    Map<String, Object> entryData = entry.getValue();
+                    customReqSec.set("name", entryData.get("name"));
+                    customReqSec.set("data", entryData.get("data"));
                 }
             }
             reqs.set("fail-requirement-message", failMessage);
@@ -1716,10 +1740,11 @@ public class QuestFactory implements ConversationAbandonedListener, ColorUtil {
 
             if (customRews != null) {
                 ConfigurationSection customRewsSec = rews.createSection("custom-rewards");
-                for (int i = 0; i < customRews.size(); i++) {
-                    ConfigurationSection customRewSec = customRewsSec.createSection("req" + (i + 1));
-                    customRewSec.set("name", customRews.get(i));
-                    customRewSec.set("data", customRewsData.get(i));
+                for (Entry<String, Map<String, Object>> entry : customRews.entrySet()) {
+                    ConfigurationSection customRewSec = customRewsSec.createSection(entry.getKey());
+                    Map<String, Object> entryData = entry.getValue();
+                    customRewSec.set("name", entryData.get("name"));
+                    customRewSec.set("data", entryData.get("data"));
                 }
             }
 
