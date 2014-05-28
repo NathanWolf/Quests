@@ -1203,7 +1203,7 @@ public class QuestFactory implements ConversationAbandonedListener, ColorUtil {
                 List<String> reqList = (List<String>)reqs;
                 for (int i = 0; i < reqList.size(); i++){
                     Map<String, Object> customReq = new HashMap<String, Object>();
-                    customReq.put("name", customReqs.get(i));
+                    customReq.put("name", reqList.get(i));
                     customReq.put("data", customReqsData.get(i));
                     customReqs.put("req" + (i + 1), customReq);
                 }
@@ -1277,7 +1277,7 @@ public class QuestFactory implements ConversationAbandonedListener, ColorUtil {
                 List<String> rewList = (List<String>)rews;
                 for (int i = 0; i < rewList.size(); i++){
                     Map<String, Object> customRew = new HashMap<String, Object>();
-                    customRew.put("name", customRews.get(i));
+                    customRew.put("name", rewList.get(i));
                     customRew.put("data", customRewsData.get(i));
                     customRews.put("rew" + (i + 1), customRew);
                 }
